@@ -359,4 +359,11 @@ header {
     .problem-container {
         grid-template-columns: 1fr;
     }
+}
+
+.error-message {
+    color: #e53e3e;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
 } 

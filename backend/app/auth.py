@@ -15,7 +15,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def authenticate_user(db: Session, username: str, password: str):
+    # Try to find user by username first
     user = db.query(models.User).filter(models.User.username == username).first()
+    
+    # If not found by username, try by email
+    if not user:
+        user = db.query(models.User).filter(models.User.email == username).first()
+    
+    # If still not found or password doesn't match
     if not user:
         return False
     if not utils.verify_password(password, user.password_hash):
