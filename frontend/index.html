@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultigo - Sign In</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Consultigo</h1>
+            </div>
+            <div class="nav-icons">
+                <span class="material-icons">settings</span>
+                <span class="material-icons">account_circle</span>
+                <span class="material-icons">logout</span>
+            </div>
+        </header>
+        
+        <main class="login-container">
+            <div class="login-box">
+                <h2>Sign in</h2>
+                <p>Enter your credentials to access your account</p>
+                
+                <form id="login-form">
+                    <div class="input-group">
+                        <span class="material-icons">email</span>
+                        <input type="email" id="email" placeholder="Email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="material-icons">lock</span>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span class="material-icons">login</span>
+                        Sign in
+                    </button>
+                </form>
+                
+                <p class="signup-link">Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html> 
