@@ -14,9 +14,8 @@
                 <h1>Consultigo</h1>
             </div>
             <div class="nav-icons">
-                <span class="material-icons">settings</span>
-                <span class="material-icons">account_circle</span>
-                <span class="material-icons">logout</span>
+                <span class="material-icons" title="Profile">account_circle</span>
+                <span class="material-icons" title="Logout">logout</span>
             </div>
         </header>
         
@@ -44,10 +43,19 @@
                 <div class="solution-container">
                     <h3>Your Solution</h3>
                     <textarea class="solution-textarea" placeholder="Enter your solution here..."></textarea>
-                    <button class="btn-primary">
+                    <button class="btn-primary" id="submit-solution">
                         <span class="material-icons">save</span>
                         Save Solution
                     </button>
+                    
+                    <div class="feedback-container" style="display: none;">
+                        <h3>AI Feedback</h3>
+                        <div class="loading-indicator" style="display: none;">
+                            <span class="material-icons spinning">autorenew</span>
+                            <p>Generating feedback...</p>
+                        </div>
+                        <div class="feedback-content"></div>
+                    </div>
                 </div>
             </div>
         </main>

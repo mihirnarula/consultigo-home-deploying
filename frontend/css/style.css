@@ -366,4 +366,41 @@ header {
     font-size: 14px;
     margin-top: 10px;
     text-align: center;
+}
+
+.feedback-container {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.feedback-content {
+    background-color: #f8f8f8;
+    border-left: 4px solid #4CAF50;
+    padding: 15px;
+    border-radius: 0 5px 5px 0;
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px 0;
+    color: #666;
+}
+
+.loading-indicator p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.spinning {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 } 

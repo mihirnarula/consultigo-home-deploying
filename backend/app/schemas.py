@@ -110,6 +110,10 @@ class SubmissionInDB(SubmissionBase):
 class Submission(SubmissionInDB):
     pass
 
+# Solution schema for the submit endpoint
+class SolutionCreate(BaseModel):
+    solution: str
+
 # AIFeedback schemas
 class AIFeedbackBase(BaseModel):
     overall_score: float = Field(..., ge=1, le=10)

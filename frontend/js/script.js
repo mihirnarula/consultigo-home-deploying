@@ -1,3 +1,82 @@
+// Handle solution submission
+async function submitSolution(problemId, solution) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('You must be logged in to submit a solution.');
+        window.location.href = 'index.html';
+        return;
+    }
+
+    console.log(`Submitting solution for problem ID: ${problemId}`);
+    try {
+        const response = await fetch(`http://localhost:8000/submissions/${problemId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                answer_text: solution
+            })
+        });
+
+        console.log(`Response status: ${response.status}`);
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+
+        if (!response.ok) {
+            throw new Error(responseData.detail || 'Error submitting solution');
+        }
+
+        return responseData;
+    } catch (error) {
+        console.error('Error submitting solution:', error);
+        if (error.message) {
+            console.error('Error message:', error.message);
+        }
+        throw error;
+    }
+}
+
+// Function to extract problem ID from URL parameters
+function getProblemIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let problemId = 1; // Default fallback
+    
+    if (urlParams.has('case')) {
+        // Get case problem ID (you might need to map the title to an ID in a real app)
+        const caseTitle = urlParams.get('case');
+        // This is a simplified approach - in a real app, you'd fetch the ID from the backend
+        problemId = getCaseIdFromTitle(caseTitle);
+    } else if (urlParams.has('guesstimate')) {
+        // Get guesstimate problem ID
+        const guessTitle = urlParams.get('guesstimate');
+        problemId = getGuessIdFromTitle(guessTitle);
+    }
+    
+    return problemId;
+}
+
+// Mock functions to map titles to IDs (in a real app, you'd fetch these from the backend)
+function getCaseIdFromTitle(title) {
+    const caseMappings = {
+        'market-entry-strategy': 1,
+        'cost-reduction-analysis': 2
+        // Add more mappings as needed
+    };
+    return caseMappings[title] || 1;
+}
+
+function getGuessIdFromTitle(title) {
+    const guessMappings = {
+        'market-size-estimation': 3,
+        'revenue-estimation': 4,
+        'cost-structure-analysis': 5
+        // Add more mappings as needed
+    };
+    return guessMappings[title] || 3;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // API base URL
     const API_URL = 'http://localhost:8000';
@@ -160,8 +239,85 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Handle solution submission
+    const submitSolutionBtn = document.getElementById('submit-solution');
+    if (submitSolutionBtn) {
+        submitSolutionBtn.addEventListener('click', async () => {
+            // Get the solution text
+            const solutionText = document.querySelector('.solution-textarea').value;
+            if (!solutionText.trim()) {
+                alert('Please enter your solution before submitting.');
+                return;
+            }
+            
+            // Get problem ID from URL
+            const problemId = getProblemIdFromUrl();
+            
+            // Show loading indicator
+            const feedbackContainer = document.querySelector('.feedback-container');
+            const loadingIndicator = document.querySelector('.loading-indicator');
+            const feedbackContent = document.querySelector('.feedback-content');
+            
+            feedbackContainer.style.display = 'block';
+            loadingIndicator.style.display = 'block';
+            feedbackContent.textContent = '';
+            
+            try {
+                // Submit solution and get feedback
+                const feedback = await submitSolution(problemId, solutionText);
+                
+                // Hide loading indicator and show feedback
+                loadingIndicator.style.display = 'none';
+                feedbackContent.textContent = feedback.feedback_text;
+                
+                // Still save to localStorage for redundancy
+                const currentPage = window.location.pathname.split('/').pop();
+                const urlParams = new URLSearchParams(window.location.search);
+                let problemTitle = '';
+                let problemType = '';
+                
+                if (currentPage.includes('case-detail') && urlParams.has('case')) {
+                    problemTitle = urlParams.get('case');
+                    problemType = 'Case Study';
+                } else if (currentPage.includes('guesstimate-detail') && urlParams.has('guesstimate')) {
+                    problemTitle = urlParams.get('guesstimate');
+                    problemType = 'Guesstimate';
+                }
+                
+                // Format the title properly for localStorage
+                problemTitle = problemTitle.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                
+                // Save solution and feedback to localStorage
+                localStorage.setItem(`solution-${problemType}-${problemTitle}`, solutionText);
+                localStorage.setItem(`feedback-${problemType}-${problemTitle}`, feedback.feedback_text);
+                
+            } catch (error) {
+                // Show error message
+                console.error('Error in submit handler:', error);
+                loadingIndicator.style.display = 'none';
+                
+                // Create a more user-friendly error message
+                let errorMessage = 'Unable to generate feedback.';
+                
+                if (error && error.message) {
+                    errorMessage += ` ${error.message}`;
+                } else if (typeof error === 'string') {
+                    errorMessage += ` ${error}`;
+                } else if (error && typeof error === 'object') {
+                    errorMessage += ' Please try again later.';
+                    console.error('Detailed error object:', JSON.stringify(error));
+                }
+                
+                feedbackContent.textContent = `Error: ${errorMessage}`;
+                feedbackContent.style.color = '#e53e3e';
+            }
+        });
+    }
+    
     // Handle logout
-    const logoutBtn = document.querySelector('.nav-icons .material-icons:nth-child(3)');
+    const logoutBtn = document.querySelector('.nav-icons .material-icons:nth-child(2)');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('isLoggedIn');
@@ -174,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Handle navigation to profile
-    const profileBtn = document.querySelector('.nav-icons .material-icons:nth-child(2)');
+    const profileBtn = document.querySelector('.nav-icons .material-icons:nth-child(1)');
     if (profileBtn) {
         profileBtn.addEventListener('click', () => {
             window.location.href = 'profile.html';
@@ -254,6 +410,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const savedSolution = localStorage.getItem(`solution-${problemType}-${problemTitle}`);
                 if (savedSolution) {
                     solutionTextarea.value = savedSolution;
+                    
+                    // Check if there's also saved feedback to display
+                    const savedFeedback = localStorage.getItem(`feedback-${problemType}-${problemTitle}`);
+                    if (savedFeedback) {
+                        const feedbackContainer = document.querySelector('.feedback-container');
+                        const feedbackContent = document.querySelector('.feedback-content');
+                        
+                        feedbackContainer.style.display = 'block';
+                        feedbackContent.textContent = savedFeedback;
+                    }
                 }
                 
                 // Save solution as user types
