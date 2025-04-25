@@ -116,12 +116,12 @@ class SolutionCreate(BaseModel):
 
 # AIFeedback schemas
 class AIFeedbackBase(BaseModel):
-    overall_score: float = Field(..., ge=1, le=10)
+    overall_score: float = Field(..., ge=0, le=10)
     feedback_text: str
-    structure_score: Optional[float] = Field(None, ge=1, le=5)
-    clarity_score: Optional[float] = Field(None, ge=1, le=5)
-    creativity_score: Optional[float] = Field(None, ge=1, le=5)
-    confidence_score: Optional[float] = Field(None, ge=1, le=5)
+    structure_score: Optional[float] = Field(None, ge=0, le=10)
+    clarity_score: Optional[float] = Field(None, ge=0, le=10)
+    creativity_score: Optional[float] = Field(None, ge=0, le=10)
+    confidence_score: Optional[float] = Field(None, ge=0, le=10)
     model_version: Optional[str] = None
 
 class AIFeedbackCreate(AIFeedbackBase):

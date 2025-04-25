@@ -433,6 +433,14 @@ Now provide your feedback in this structure:
                 models.AIFeedback.submission_id == db_submission.submission_id
             ).order_by(models.AIFeedback.feedback_id.desc()).first()
             
+            # Print scores to terminal
+            print(f"\nScores for submission {db_submission.submission_id}:")
+            print(f"Overall Score: {overall_score}")
+            print(f"Structure Score: {structure_score}") 
+            print(f"Clarity Score: {clarity_score}")
+            print(f"Creativity Score: {creativity_score}")
+            print(f"Confidence Score: {confidence_score}\n")
+            
             # Double-check by forcing an update with raw SQL to ensure scores are set
             update_query = text("""
             UPDATE ai_feedback 
