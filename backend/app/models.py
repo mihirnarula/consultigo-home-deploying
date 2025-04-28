@@ -55,6 +55,7 @@ class Problem(Base):
     # Relationships
     author = relationship("User", back_populates="problems")
     examples = relationship("ProblemExample", back_populates="problem")
+    frameworks = relationship("Framework", back_populates="problem")
     submissions = relationship("Submission", back_populates="problem")
 
 class ProblemExample(Base):
@@ -68,6 +69,18 @@ class ProblemExample(Base):
 
     # Relationships
     problem = relationship("Problem", back_populates="examples")
+
+class Framework(Base):
+    __tablename__ = "frameworks"
+
+    framework_id = Column(Integer, primary_key=True, index=True)
+    problem_id = Column(Integer, ForeignKey("problems.problem_id"))
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    problem = relationship("Problem", back_populates="frameworks")
 
 class Submission(Base):
     __tablename__ = "submissions"

@@ -103,4 +103,40 @@ def read_problem_examples(problem_id: int, db: Session = Depends(database.get_db
         raise HTTPException(status_code=404, detail="Problem not found")
     
     examples = db.query(models.ProblemExample).filter(models.ProblemExample.problem_id == problem_id).all()
-    return examples 
+    return examples
+
+# Framework endpoints
+@router.post("/{problem_id}/frameworks", response_model=schemas.Framework, status_code=status.HTTP_201_CREATED)
+def create_framework(problem_id: int, framework: schemas.FrameworkBase, db: Session = Depends(database.get_db)):
+    # Check if problem exists
+    db_problem = db.query(models.Problem).filter(models.Problem.problem_id == problem_id).first()
+    if db_problem is None:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    
+    # Create framework
+    db_framework = models.Framework(
+        problem_id=problem_id,
+        title=framework.title,
+        content=framework.content
+    )
+    db.add(db_framework)
+    db.commit()
+    db.refresh(db_framework)
+    return db_framework
+
+@router.get("/{problem_id}/frameworks", response_model=List[schemas.Framework])
+def read_problem_frameworks(problem_id: int, db: Session = Depends(database.get_db)):
+    # Check if problem exists
+    db_problem = db.query(models.Problem).filter(models.Problem.problem_id == problem_id).first()
+    if db_problem is None:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    
+    frameworks = db.query(models.Framework).filter(models.Framework.problem_id == problem_id).all()
+    return frameworks
+
+@router.get("/frameworks/{framework_id}", response_model=schemas.Framework)
+def read_framework(framework_id: int, db: Session = Depends(database.get_db)):
+    db_framework = db.query(models.Framework).filter(models.Framework.framework_id == framework_id).first()
+    if db_framework is None:
+        raise HTTPException(status_code=404, detail="Framework not found")
+    return db_framework 

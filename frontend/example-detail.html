@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultigo - Example</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Consultigo</h1>
+            </div>
+            <div class="nav-icons">
+                <span class="material-icons" title="Profile">account_circle</span>
+                <span class="material-icons" title="Logout">logout</span>
+            </div>
+        </header>
+        
+        <main>
+            <div class="problem-container">
+                <div class="problem-statement">
+                    <h2>Example</h2>
+                    <div class="problem-text">
+                        <!-- Example content will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="solution-container">
+                    <h3>Solution</h3>
+                    <div class="solution-content markdown-content">
+                        <!-- Solution content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get example data from localStorage
+            const exampleData = JSON.parse(localStorage.getItem('currentExample'));
+            
+            if (!exampleData) {
+                // If no example data is found, show error and return to examples page
+                alert('Example not found. Returning to examples list.');
+                window.location.href = 'examples.html';
+                return;
+            }
+            
+            // Populate the page with example data
+            const problemStatement = document.querySelector('.problem-statement');
+            const problemText = document.querySelector('.problem-text');
+            const solutionContent = document.querySelector('.solution-content');
+            
+            // Set problem title
+            const titleElement = problemStatement.querySelector('h2');
+            titleElement.textContent = "Case Example";
+            
+            // Set problem text
+            problemText.textContent = exampleData.example_text;
+            
+            // Set solution content using markdown
+            solutionContent.innerHTML = marked.parse(exampleData.example_answer);
+            
+            // Apply syntax highlighting to code blocks
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
+</body>
+</html> 

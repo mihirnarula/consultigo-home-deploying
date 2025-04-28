@@ -49,6 +49,12 @@ function getProblemIdFromUrl() {
     } else if (urlParams.has('guesstimate')) {
         const guessTitle = urlParams.get('guesstimate');
         problemId = getGuessIdFromTitle(guessTitle);
+    } else if (urlParams.has('example')) {
+        const exampleTitle = urlParams.get('example');
+        problemId = getExampleIdFromTitle(exampleTitle);
+    } else if (urlParams.has('framework')) {
+        const frameworkTitle = urlParams.get('framework');
+        problemId = getFrameworkIdFromTitle(frameworkTitle);
     }
     
     return problemId || 1; // Fallback to ID 1 if no ID found
@@ -72,6 +78,239 @@ function getGuessIdFromTitle(title) {
         // Add more mappings as needed
     };
     return guessMappings[title] || 3;
+}
+
+function getExampleIdFromTitle(title) {
+    // This will be updated dynamically based on the available examples
+    return 1;
+}
+
+function getFrameworkIdFromTitle(title) {
+    // This will be updated dynamically based on the available frameworks
+    return 1;
+}
+
+// Function to fetch and display examples
+async function loadExamples() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('No token found, redirecting to login');
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    try {
+        // Fetch examples for all problem categories
+        const response = await fetch('http://localhost:8000/problems/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch problems');
+        }
+
+        const problems = await response.json();
+        const container = document.querySelector('main');
+        
+        // Clear existing content except title
+        const pageTitle = container.querySelector('.page-title');
+        container.innerHTML = '';
+        container.appendChild(pageTitle);
+        
+        // Add examples for each problem
+        for (const problem of problems) {
+            try {
+                const examplesResponse = await fetch(`http://localhost:8000/problems/${problem.problem_id}/examples`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!examplesResponse.ok) {
+                    console.error(`Failed to fetch examples for problem ${problem.problem_id}`);
+                    continue;
+                }
+                
+                const examples = await examplesResponse.json();
+                
+                // Display examples if any exist
+                if (examples && examples.length > 0) {
+                    // Add problem title as a section header
+                    const problemHeader = document.createElement('h2');
+                    problemHeader.textContent = problem.title;
+                    problemHeader.className = 'problem-category';
+                    container.appendChild(problemHeader);
+                    
+                    // Display each example
+                    for (const example of examples) {
+                        const card = document.createElement('div');
+                        card.className = 'case-card';
+                        card.dataset.exampleId = example.example_id;
+                        card.dataset.problemId = problem.problem_id;
+                        
+                        // Create title element
+                        const title = document.createElement('h3');
+                        // Show full example text
+                        title.textContent = example.example_text;
+                        
+                        // Create difficulty badge
+                        const badge = document.createElement('span');
+                        badge.className = `difficulty ${problem.difficulty.toLowerCase()}`;
+                        badge.textContent = problem.difficulty;
+                        
+                        // Add elements to card
+                        card.appendChild(title);
+                        card.appendChild(badge);
+                        
+                        // Add click event
+                        card.addEventListener('click', () => {
+                            // Store the example data in localStorage for the detail page
+                            localStorage.setItem('currentExample', JSON.stringify(example));
+                            window.location.href = `example-detail.html?example=${encodeURIComponent(title.textContent.toLowerCase().replace(/\s+/g, '-'))}&id=${example.example_id}`;
+                        });
+                        
+                        container.appendChild(card);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching examples for problem ${problem.problem_id}:`, error);
+            }
+        }
+        
+        if (container.querySelectorAll('.case-card').length === 0) {
+            const noExamples = document.createElement('p');
+            noExamples.className = 'case-instructions';
+            noExamples.textContent = 'No examples available yet.';
+            container.appendChild(noExamples);
+        } else {
+            const instructions = document.createElement('p');
+            instructions.className = 'case-instructions';
+            instructions.textContent = 'Select an example to explore';
+            container.appendChild(instructions);
+        }
+    } catch (error) {
+        console.error('Error loading examples:', error);
+        const container = document.querySelector('main');
+        const errorMsg = document.createElement('p');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = 'Failed to load examples. Please try again later.';
+        container.appendChild(errorMsg);
+    }
+}
+
+// Function to fetch and display frameworks
+async function loadFrameworks() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('No token found, redirecting to login');
+        window.location.href = 'auth.html';
+        return;
+    }
+
+    try {
+        // Fetch problems to get their categories
+        const response = await fetch('http://localhost:8000/problems/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch problems');
+        }
+
+        const problems = await response.json();
+        const container = document.querySelector('main');
+        
+        // Clear existing content except title
+        const pageTitle = container.querySelector('.page-title');
+        container.innerHTML = '';
+        container.appendChild(pageTitle);
+        
+        // Add frameworks for each problem
+        for (const problem of problems) {
+            try {
+                const frameworksResponse = await fetch(`http://localhost:8000/problems/${problem.problem_id}/frameworks`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!frameworksResponse.ok) {
+                    console.error(`Failed to fetch frameworks for problem ${problem.problem_id}`);
+                    continue;
+                }
+                
+                const frameworks = await frameworksResponse.json();
+                
+                // Display frameworks if any exist
+                if (frameworks && frameworks.length > 0) {
+                    // Add problem title as a section header
+                    const problemHeader = document.createElement('h2');
+                    problemHeader.textContent = problem.title;
+                    problemHeader.className = 'problem-category';
+                    container.appendChild(problemHeader);
+                    
+                    // Display each framework
+                    for (const framework of frameworks) {
+                        const card = document.createElement('div');
+                        card.className = 'case-card';
+                        card.dataset.frameworkId = framework.framework_id;
+                        card.dataset.problemId = problem.problem_id;
+                        
+                        // Create title element
+                        const title = document.createElement('h3');
+                        title.textContent = framework.title;
+                        
+                        // Create difficulty badge
+                        const badge = document.createElement('span');
+                        badge.className = `difficulty ${problem.difficulty.toLowerCase()}`;
+                        badge.textContent = problem.difficulty;
+                        
+                        // Add elements to card
+                        card.appendChild(title);
+                        card.appendChild(badge);
+                        
+                        // Add click event
+                        card.addEventListener('click', () => {
+                            // Store the framework data in localStorage for the detail page
+                            localStorage.setItem('currentFramework', JSON.stringify(framework));
+                            window.location.href = `framework-detail.html?framework=${encodeURIComponent(framework.title.toLowerCase().replace(/\s+/g, '-'))}&id=${framework.framework_id}`;
+                        });
+                        
+                        container.appendChild(card);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching frameworks for problem ${problem.problem_id}:`, error);
+            }
+        }
+        
+        if (container.querySelectorAll('.case-card').length === 0) {
+            const noFrameworks = document.createElement('p');
+            noFrameworks.className = 'case-instructions';
+            noFrameworks.textContent = 'No frameworks available yet.';
+            container.appendChild(noFrameworks);
+        } else {
+            const instructions = document.createElement('p');
+            instructions.className = 'case-instructions';
+            instructions.textContent = 'Select a framework to learn';
+            container.appendChild(instructions);
+        }
+    } catch (error) {
+        console.error('Error loading frameworks:', error);
+        const container = document.querySelector('main');
+        const errorMsg = document.createElement('p');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = 'Failed to load frameworks. Please try again later.';
+        container.appendChild(errorMsg);
+    }
 }
 
 // Function to fetch problem details from API and update the page
@@ -187,6 +426,246 @@ function formatGuessDescription(description) {
     `;
 }
 
+// Function to format feedback with scores based on problem type
+function formatFeedback(feedback, problemType) {
+    // Extract feedback content sections from text
+    const feedbackContent = extractFeedbackSections(feedback.feedback_text);
+    
+    // Set scores based on relevance
+    let scores;
+    if (feedbackContent.is_relevant === false) {
+        // If solution is not relevant, set all scores to 0
+        scores = {
+            overall_score: 0,
+            structure_score: 0,
+            quantitative_score: 0,
+            creativity_score: 0,
+            communication_score: 0
+        };
+    } else {
+        // Use regular fields since raw_json is not available
+        scores = {
+            overall_score: feedback.overall_score,
+            structure_score: feedback.structure_score,
+            quantitative_score: feedback.clarity_score,
+            creativity_score: feedback.creativity_score,
+            communication_score: feedback.confidence_score
+        };
+    }
+    
+    // Generate score HTML using definite scores (no fallbacks needed)
+    const scoreHtml = generateScoreHtml(scores, problemType);
+    
+    // Generate feedback sections HTML, passing the overall score
+    const feedbackHtml = generateFeedbackHtml(feedbackContent, scores.overall_score);
+    
+    return scoreHtml + feedbackHtml;
+}
+
+// Helper function to extract sections from feedback text
+function extractFeedbackSections(feedbackText) {
+    const result = {
+        relevance: '',
+        strengths: [],
+        areas_for_improvement: [],
+        final_assessment: '',
+        is_relevant: true // Default to relevant
+    };
+    
+    // Extract relevance
+    const relevanceMatch = feedbackText.match(/Relevance[:\s-]*([^]*?)(?=\n\n|\nStrengths|\nAreas for|$)/i);
+    if (relevanceMatch && relevanceMatch[1]) {
+        const relevanceText = relevanceMatch[1].trim();
+        result.relevance = relevanceText;
+        
+        // Check if the answer is not relevant
+        const notRelevantPattern = /\b(no|not relevant|irrelevant|doesn't address|does not address|off-topic|misses the point|misunderstands|fails to address|unrelated|not applicable|incorrect|completely off|missing the mark|wrong approach|not answering)\b/i;
+        if (notRelevantPattern.test(relevanceText)) {
+            result.is_relevant = false;
+        }
+    }
+    
+    // Extract strengths
+    const strengthsMatch = feedbackText.match(/Strengths[:\s-]*([^]*?)(?=\n\n|\nAreas for|Final Assessment|$)/i);
+    if (strengthsMatch && strengthsMatch[1]) {
+        const strengthsText = strengthsMatch[1].trim();
+        
+        // Handle bullet points (asterisks or dashes)
+        if (strengthsText.includes('* ') || strengthsText.includes('- ')) {
+            const bulletPoints = strengthsText.split(/\n[*\-]\s+/).filter(item => item.trim());
+            result.strengths = bulletPoints;
+        } else {
+            result.strengths = [strengthsText];
+        }
+    }
+    
+    // Extract areas for improvement
+    const improvementMatch = feedbackText.match(/Areas for [iI]mprovement[:\s-]*([^]*?)(?=\n\n|\nFinal Assessment|$)/i);
+    if (improvementMatch && improvementMatch[1]) {
+        const improvementText = improvementMatch[1].trim();
+        
+        // Handle bullet points (asterisks or dashes)
+        if (improvementText.includes('* ') || improvementText.includes('- ')) {
+            const bulletPoints = improvementText.split(/\n[*\-]\s+/).filter(item => item.trim());
+            result.areas_for_improvement = bulletPoints;
+        } else {
+            result.areas_for_improvement = [improvementText];
+        }
+    }
+    
+    // Extract final assessment
+    const assessmentMatch = feedbackText.match(/Final Assessment[:\s-]*([^]*?)(?=\n\n|$)/i);
+    if (assessmentMatch && assessmentMatch[1]) {
+        result.final_assessment = assessmentMatch[1].trim();
+    }
+    
+    return result;
+}
+
+// Helper function to generate score HTML
+function generateScoreHtml(scores, problemType) {
+    const overallScore = parseFloat(scores.overall_score) || 0;
+    const structureScore = parseFloat(scores.structure_score) || 0;
+    const quantitativeScore = parseFloat(scores.quantitative_score) || 0;
+    const creativityScore = parseFloat(scores.creativity_score) || 0;
+    const communicationScore = parseFloat(scores.communication_score) || 0;
+    
+    // Check if solution is not relevant (all scores are 0)
+    const isNotRelevant = overallScore === 0 && structureScore === 0 && 
+                         quantitativeScore === 0 && creativityScore === 0 && 
+                         communicationScore === 0;
+    
+    // Set labels based on problem type
+    let structureLabel, quantitativeLabel, creativityLabel, communicationLabel;
+    
+    if (problemType === 'Case Study') {
+        structureLabel = "Structure & Framework";
+        quantitativeLabel = "Quantitative Analysis";
+        creativityLabel = "Creativity & Insight";
+        communicationLabel = "Communication Clarity";
+    } else { // Guesstimate
+        structureLabel = "Structure & Framework";
+        quantitativeLabel = "Quantitative Analysis";
+        creativityLabel = "Creativity & Insight";
+        communicationLabel = "Communication Clarity"; 
+    }
+    
+    // Create not relevant warning message if needed
+    const notRelevantWarning = isNotRelevant ? 
+        `<div class="relevance-warning">
+            <i class="material-icons">warning</i>
+            <p>Solution not relevant to the problem. Please review the problem statement and try again.</p>
+        </div>` : '';
+    
+    return `
+    <div class="feedback-scores${isNotRelevant ? ' not-relevant' : ''}">
+        ${notRelevantWarning}
+        <div class="overall-score">
+            <h4>Overall Score</h4>
+            <div class="score-value">${overallScore.toFixed(1)}/10</div>
+        </div>
+        <div class="score-categories">
+            <div class="score-item">
+                <div class="score-label">${structureLabel}</div>
+                <div class="score-number">${structureScore.toFixed(1)}/10</div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${(structureScore/10)*100}%"></div>
+                </div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">${quantitativeLabel}</div>
+                <div class="score-number">${quantitativeScore.toFixed(1)}/10</div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${(quantitativeScore/10)*100}%"></div>
+                </div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">${creativityLabel}</div>
+                <div class="score-number">${creativityScore.toFixed(1)}/10</div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${(creativityScore/10)*100}%"></div>
+                </div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">${communicationLabel}</div>
+                <div class="score-number">${communicationScore.toFixed(1)}/10</div>
+                <div class="score-bar">
+                    <div class="score-fill" style="width: ${(communicationScore/10)*100}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// Helper function to generate feedback HTML
+function generateFeedbackHtml(feedbackContent, overallScore) {
+    let relevanceSection = '';
+    let strengthsSection = '';
+    let improvementSection = '';
+    let assessmentSection = '';
+    
+    // Create relevance section
+    if (feedbackContent.relevance) {
+        relevanceSection = `<div class="feedback-section">
+            <h5>Relevance</h5>
+            <p>${feedbackContent.relevance}</p>
+        </div>`;
+    }
+    
+    // Create strengths section
+    if (feedbackContent.strengths && feedbackContent.strengths.length > 0) {
+        const strengthsList = feedbackContent.strengths.length > 1 
+            ? '<ul>' + feedbackContent.strengths.map(item => `<li>${item.trim()}</li>`).join('') + '</ul>'
+            : `<p>${feedbackContent.strengths[0]}</p>`;
+            
+        strengthsSection = `<div class="feedback-section">
+            <h5>Strengths</h5>
+            ${strengthsList}
+        </div>`;
+    }
+    
+    // Create areas for improvement section
+    if (feedbackContent.areas_for_improvement && feedbackContent.areas_for_improvement.length > 0) {
+        const improvementList = feedbackContent.areas_for_improvement.length > 1
+            ? '<ul>' + feedbackContent.areas_for_improvement.map(item => `<li>${item.trim()}</li>`).join('') + '</ul>'
+            : `<p>${feedbackContent.areas_for_improvement[0]}</p>`;
+            
+        improvementSection = `<div class="feedback-section">
+            <h5>Areas for Improvement</h5>
+            ${improvementList}
+        </div>`;
+    }
+    
+    // Create final assessment section with overall score
+    if (feedbackContent.final_assessment) {
+        const scoreDisplay = typeof overallScore !== 'undefined' ? 
+            `<p class="final-score">Overall Score: <strong>${parseFloat(overallScore).toFixed(1)}/10</strong></p>` : '';
+            
+        assessmentSection = `<div class="feedback-section">
+            <h5>Final Assessment</h5>
+            <p>${feedbackContent.final_assessment}</p>
+            ${scoreDisplay}
+        </div>`;
+    }
+    
+    // Handle case where no sections were successfully extracted
+    if (!relevanceSection && !strengthsSection && !improvementSection && !assessmentSection) {
+        // Format as raw text if no structured content
+        if (typeof feedbackContent === 'string') {
+            return '<div class="feedback-text">' + feedbackContent.replace(/\n/g, '<br>') + '</div>';
+        }
+        return '<div class="feedback-text"><p>No feedback available.</p></div>';
+    }
+    
+    // Return the combined HTML with properly formatted sections
+    return `<div class="feedback-text">
+        ${relevanceSection}
+        ${strengthsSection}
+        ${improvementSection}
+        ${assessmentSection}
+    </div>`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // API base URL
     const API_URL = 'http://localhost:8000';
@@ -202,18 +681,40 @@ document.addEventListener('DOMContentLoaded', () => {
         logoElement.addEventListener('click', () => {
             if (isLoggedIn) {
                 window.location.href = 'home.html';
+            } else {
+                window.location.href = 'index.html';
             }
         });
     }
     
-    // If not logged in and not on login page, redirect to login
-    if (!isLoggedIn && currentPage !== 'index.html' && currentPage !== '') {
-        window.location.href = 'index.html';
+    // If not logged in and trying to access a protected page, redirect to login
+    if (!isLoggedIn && !['index.html', 'auth.html', ''].includes(currentPage)) {
+        window.location.href = 'auth.html';
     }
     
     // If logged in and on login page, redirect to home
-    if (isLoggedIn && (currentPage === 'index.html' || currentPage === '')) {
+    if (isLoggedIn && currentPage === 'auth.html') {
         window.location.href = 'home.html';
+    }
+    
+    // Load examples and frameworks on their respective pages
+    if (currentPage === 'examples.html') {
+        loadExamples();
+    } else if (currentPage === 'frameworks.html') {
+        loadFrameworks();
+    }
+    
+    // Handle landing page buttons
+    const startPracticingBtns = document.querySelectorAll('.btn-primary[href="auth.html"]');
+    if (startPracticingBtns.length) {
+        startPracticingBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (isLoggedIn) {
+                    e.preventDefault();
+                    window.location.href = 'home.html';
+                }
+            });
+        });
     }
     
     // Toggle between login and signup forms
@@ -384,9 +885,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Hide loading indicator and show feedback
                 loadingIndicator.style.display = 'none';
-                feedbackContent.textContent = feedback.feedback_text;
                 
-                // Still save to localStorage for redundancy
+                // Get problem type for correct formatting
                 const currentPage = window.location.pathname.split('/').pop();
                 const urlParams = new URLSearchParams(window.location.search);
                 let problemTitle = '';
@@ -405,9 +905,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     word.charAt(0).toUpperCase() + word.slice(1)
                 ).join(' ');
                 
+                // Format and display the feedback
+                feedbackContent.innerHTML = formatFeedback(feedback, problemType);
+                
                 // Save solution and feedback to localStorage
                 localStorage.setItem(`solution-${problemType}-${problemTitle}`, solutionText);
                 localStorage.setItem(`feedback-${problemType}-${problemTitle}`, feedback.feedback_text);
+                localStorage.setItem(`feedback-data-${problemType}-${problemTitle}`, JSON.stringify(feedback));
                 
             } catch (error) {
                 // Show error message
@@ -532,20 +1036,60 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         // Check if there's also saved feedback to display
                         const savedFeedback = localStorage.getItem(`feedback-${problemType}-${formattedTitle}`);
+                        const savedFeedbackData = localStorage.getItem(`feedback-data-${problemType}-${formattedTitle}`);
+                        
                         if (savedFeedback) {
                             const feedbackContainer = document.querySelector('.feedback-container');
                             const feedbackContent = document.querySelector('.feedback-content');
                             
                             feedbackContainer.style.display = 'block';
-                            feedbackContent.textContent = savedFeedback;
+                            
+                            // If we have saved feedback data (with scores)
+                            if (savedFeedbackData) {
+                                try {
+                                    const feedbackData = JSON.parse(savedFeedbackData);
+                                    feedbackContent.innerHTML = formatFeedback(feedbackData, problemType);
+                                } catch (e) {
+                                    // Fallback to just text if parsing fails
+                                    feedbackContent.textContent = savedFeedback;
+                                }
+                            } else {
+                                // Just use the text
+                                feedbackContent.textContent = savedFeedback;
+                            }
                         }
+                        
+                        // Save solution as user types
+                        solutionTextarea.addEventListener('input', () => {
+                            localStorage.setItem(`solution-${problemType}-${formattedTitle}`, solutionTextarea.value);
+                        });
+                    }
+                }
+                
+                // Clear solution and feedback when the user leaves the page
+                window.addEventListener('beforeunload', () => {
+                    console.log('User is leaving the page, clearing solution and feedback');
+                    
+                    // Clear textarea
+                    if (solutionTextarea) {
+                        solutionTextarea.value = '';
                     }
                     
-                    // Save solution as user types
-                    solutionTextarea.addEventListener('input', () => {
-                        localStorage.setItem(`solution-${problemType}-${formattedTitle}`, solutionTextarea.value);
-                    });
-                }
+                    // Clear feedback display
+                    const feedbackContainer = document.querySelector('.feedback-container');
+                    const feedbackContent = document.querySelector('.feedback-content');
+                    if (feedbackContainer) {
+                        feedbackContainer.style.display = 'none';
+                    }
+                    if (feedbackContent) {
+                        feedbackContent.innerHTML = '';
+                    }
+                    
+                    // Remove items from localStorage
+                    localStorage.removeItem(`solution-${problemType}-${formattedTitle}`);
+                    localStorage.removeItem(`feedback-${problemType}-${formattedTitle}`);
+                    localStorage.removeItem(`feedback-data-${problemType}-${formattedTitle}`);
+                });
             });
         }
     }

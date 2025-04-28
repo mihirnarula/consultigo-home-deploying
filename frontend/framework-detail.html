@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultigo - Framework</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Consultigo</h1>
+            </div>
+            <div class="nav-icons">
+                <span class="material-icons" title="Profile">account_circle</span>
+                <span class="material-icons" title="Logout">logout</span>
+            </div>
+        </header>
+        
+        <main>
+            <div class="problem-container">
+                <div class="problem-statement">
+                    <h2>Framework</h2>
+                    <div class="framework-title">
+                        <!-- Framework title will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="solution-container">
+                    <h3>Framework Content</h3>
+                    <div class="solution-content markdown-content">
+                        <!-- Framework content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get framework data from localStorage
+            const frameworkData = JSON.parse(localStorage.getItem('currentFramework'));
+            
+            if (!frameworkData) {
+                // If no framework data is found, show error and return to frameworks page
+                alert('Framework not found. Returning to frameworks list.');
+                window.location.href = 'frameworks.html';
+                return;
+            }
+            
+            // Populate the page with framework data
+            const problemStatement = document.querySelector('.problem-statement');
+            const frameworkTitle = document.querySelector('.framework-title');
+            const solutionContent = document.querySelector('.solution-content');
+            
+            // Set header title
+            const titleElement = problemStatement.querySelector('h2');
+            titleElement.textContent = "Consulting Framework";
+            
+            // Set framework name
+            frameworkTitle.textContent = frameworkData.title;
+            
+            // Set framework content using markdown
+            solutionContent.innerHTML = marked.parse(frameworkData.content);
+            
+            // Apply syntax highlighting to code blocks
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
+</body>
+</html> 

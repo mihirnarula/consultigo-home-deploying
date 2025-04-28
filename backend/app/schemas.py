@@ -86,6 +86,25 @@ class ProblemExampleInDB(ProblemExampleBase):
 class ProblemExample(ProblemExampleInDB):
     pass
 
+# Framework schemas
+class FrameworkBase(BaseModel):
+    title: str
+    content: str
+
+class FrameworkCreate(FrameworkBase):
+    problem_id: int
+
+class FrameworkInDB(FrameworkBase):
+    framework_id: int
+    problem_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class Framework(FrameworkInDB):
+    pass
+
 # Submission schemas
 class SubmissionBase(BaseModel):
     answer_text: str

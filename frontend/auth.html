@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultigo - Sign In</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Consultigo</h1>
+            </div>
+            <!-- Navigation icons removed from sign-in page -->
+        </header>
+        
+        <main class="login-container">
+            <!-- Login Box -->
+            <div class="login-box" id="login-box">
+                <h2>Sign in</h2>
+                <p>Enter your credentials to access your account</p>
+                
+                <form id="login-form">
+                    <div class="input-group">
+                        <span class="material-icons">email</span>
+                        <input type="text" id="login-email" placeholder="Email or Username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="material-icons">lock</span>
+                        <input type="password" id="login-password" placeholder="Password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span class="material-icons">login</span>
+                        Sign in
+                    </button>
+                </form>
+                
+                <p class="signup-link">Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
+                <p id="login-error" class="error-message"></p>
+            </div>
+
+            <!-- Signup Box (initially hidden) -->
+            <div class="login-box" id="signup-box" style="display: none;">
+                <h2>Sign up</h2>
+                <p>Create a new account</p>
+                
+                <form id="signup-form">
+                    <div class="input-group">
+                        <span class="material-icons">person</span>
+                        <input type="text" id="signup-username" placeholder="Username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="material-icons">email</span>
+                        <input type="email" id="signup-email" placeholder="Email" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="material-icons">badge</span>
+                        <input type="text" id="signup-firstname" placeholder="First Name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="material-icons">badge</span>
+                        <input type="text" id="signup-lastname" placeholder="Last Name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="material-icons">lock</span>
+                        <input type="password" id="signup-password" placeholder="Password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span class="material-icons">person_add</span>
+                        Sign up
+                    </button>
+                </form>
+                
+                <p class="signup-link">Already have an account? <a href="#" id="login-link">Sign in</a></p>
+                <p id="signup-error" class="error-message"></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html> 

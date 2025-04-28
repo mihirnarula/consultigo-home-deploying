@@ -3,87 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultigo - Sign In</title>
+    <title>Consultigo - Consulting Case Interview Practice</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
-    <div class="container">
-        <header>
+    <div class="container landing-page">
+        <!-- Navigation Header -->
+        <header class="landing-header">
             <div class="logo">
                 <h1>Consultigo</h1>
             </div>
-            <!-- Navigation icons removed from sign-in page -->
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li class="dropdown">
+                        <a href="#resources">Resources</a>
+                    </li>
+                    <li><a href="#about">About AI Coach</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <a href="auth.html" class="btn-secondary">Sign In</a>
+                <a href="auth.html" class="btn-primary">Start Practicing For Free</a>
+            </div>
         </header>
         
-        <main class="login-container">
-            <!-- Login Box -->
-            <div class="login-box" id="login-box">
-                <h2>Sign in</h2>
-                <p>Enter your credentials to access your account</p>
-                
-                <form id="login-form">
-                    <div class="input-group">
-                        <span class="material-icons">email</span>
-                        <input type="text" id="login-email" placeholder="Email or Username" required>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Ace Your <span class="highlight">Consulting</span> Interviews</h1>
+                <p>Practice, prepare, and perfect your case interviews and guesstimates with our AI-powered platform designed by ex-MBB consultants.</p>
+                <div class="hero-cta">
+                    <a href="auth.html" class="btn-primary btn-large">Start Practicing For Free</a>
+                    <a href="#demo" class="btn-watch"><span class="material-icons">play_circle_filled</span> Watch Demo</a>
+                </div>
+                <div class="feature-highlights">
+                    <div class="feature-item">
+                        <span class="material-icons">analytics</span>
+                        <span>AI-Powered Feedback</span>
                     </div>
-                    
-                    <div class="input-group">
-                        <span class="material-icons">lock</span>
-                        <input type="password" id="login-password" placeholder="Password" required>
+                    <div class="feature-item">
+                        <span class="material-icons">show_chart</span>
+                        <span>Real-time Analysis</span>
                     </div>
-                    
-                    <button type="submit" class="btn-primary">
-                        <span class="material-icons">login</span>
-                        Sign in
-                    </button>
-                </form>
-                
-                <p class="signup-link">Don't have an account? <a href="#" id="signup-link">Sign up</a></p>
-                <p id="login-error" class="error-message"></p>
+                </div>
             </div>
-
-            <!-- Signup Box (initially hidden) -->
-            <div class="login-box" id="signup-box" style="display: none;">
-                <h2>Sign up</h2>
-                <p>Create a new account</p>
+            
+            <!-- Feature Cards -->
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="card-icon blue">
+                        <span class="material-icons">business</span>
+                    </div>
+                    <h3>Case Studies</h3>
+                    <p>Over 200+ real-world cases with AI-powered feedback</p>
+                </div>
                 
-                <form id="signup-form">
-                    <div class="input-group">
-                        <span class="material-icons">person</span>
-                        <input type="text" id="signup-username" placeholder="Username" required>
+                <div class="feature-card">
+                    <div class="card-icon green">
+                        <span class="material-icons">analytics</span>
                     </div>
-
-                    <div class="input-group">
-                        <span class="material-icons">email</span>
-                        <input type="email" id="signup-email" placeholder="Email" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <span class="material-icons">badge</span>
-                        <input type="text" id="signup-firstname" placeholder="First Name" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <span class="material-icons">badge</span>
-                        <input type="text" id="signup-lastname" placeholder="Last Name" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <span class="material-icons">lock</span>
-                        <input type="password" id="signup-password" placeholder="Password" required>
-                    </div>
-                    
-                    <button type="submit" class="btn-primary">
-                        <span class="material-icons">person_add</span>
-                        Sign up
-                    </button>
-                </form>
+                    <h3>Guesstimates</h3>
+                    <p>Master market sizing with instant AI guidance</p>
+                </div>
                 
-                <p class="signup-link">Already have an account? <a href="#" id="login-link">Sign in</a></p>
-                <p id="signup-error" class="error-message"></p>
+                <div class="feature-card">
+                    <div class="card-icon yellow">
+                        <span class="material-icons">event</span>
+                    </div>
+                    <h3>Practice Sessions</h3>
+                    <p>24/7 access to AI-powered interview practice</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="card-icon purple">
+                        <span class="material-icons">psychology</span>
+                    </div>
+                    <h3>AI Feedback</h3>
+                    <p>Detailed analysis and improvement suggestions</p>
+                </div>
             </div>
-        </main>
+        </section>
+        
+        <!-- Why Choose Section -->
+        <section class="why-choose-section" id="features">
+            <h2>Why Choose Consultigo?</h2>
+            <p>Our AI-powered platform provides everything you need to excel in your consulting interviews.</p>
+            
+            <div class="value-props">
+                <div class="value-prop-card">
+                    <div class="card-icon blue">
+                        <span class="material-icons">query_stats</span>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Get instant, detailed feedback on your case interview performance.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon purple">
+                        <span class="material-icons">psychology</span>
+                    </div>
+                    <h3>Smart Feedback</h3>
+                    <p>Receive personalized suggestions to improve your problem-solving approach.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon yellow">
+                        <span class="material-icons">schedule</span>
+                    </div>
+                    <h3>24/7 Practice</h3>
+                    <p>Practice anytime with our AI-powered interview simulator.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon green">
+                        <span class="material-icons">school</span>
+                    </div>
+                    <h3>Structured Learning</h3>
+                    <p>Follow our proven curriculum designed by ex-consultants.</p>
+                </div>
+            </div>
+            
+            <div class="value-props">
+                <div class="value-prop-card">
+                    <div class="card-icon blue">
+                        <span class="material-icons">insights</span>
+                    </div>
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your improvement with detailed performance analytics.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon purple">
+                        <span class="material-icons">library_books</span>
+                    </div>
+                    <h3>Case Library</h3>
+                    <p>Access 200+ cases with comprehensive AI-guided solutions.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon yellow">
+                        <span class="material-icons">lightbulb</span>
+                    </div>
+                    <h3>Smart Hints</h3>
+                    <p>Get real-time suggestions when you need guidance during practice.</p>
+                </div>
+                
+                <div class="value-prop-card">
+                    <div class="card-icon green">
+                        <span class="material-icons">assessment</span>
+                    </div>
+                    <h3>Skill Assessment</h3>
+                    <p>Receive detailed evaluations of your consulting readiness.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="footer-section">
+                <h3>Consultigo</h3>
+                <p>Your AI-powered platform for mastering consulting case interviews and guesstimates.</p>
+                <div class="social-icons">
+                    <a href="#"><span class="material-icons">facebook</span></a>
+                    <a href="#"><span class="material-icons">twitter</span></a>
+                    <a href="#"><span class="material-icons">instagram</span></a>
+                    <a href="#"><span class="material-icons">linkedin</span></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Platform</h3>
+                <ul>
+                    <li><a href="#">Case Library</a></li>
+                    <li><a href="#">Guesstimate Training</a></li>
+                    <li><a href="#">AI Coach</a></li>
+                    <li><a href="#">Analytics</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </footer>
     </div>
 
     <script src="js/script.js"></script>
