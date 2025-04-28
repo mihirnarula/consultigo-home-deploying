@@ -2,7 +2,7 @@
 
 A full-stack application for consulting case interview preparation with AI-powered feedback.
 
-## Overview
+## Overview:
 
 Consultigo is a comprehensive platform designed to help aspiring consultants prepare for case interviews through practice with real-world business scenarios, guesstimates, consulting frameworks, and expert examples. The application combines a clean, modern frontend with a powerful AI-driven backend to provide personalized feedback on user solutions.
 
