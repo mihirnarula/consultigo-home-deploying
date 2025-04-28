@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import sys
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
@@ -11,21 +12,31 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
+
+# Log startup information
+logger.info(f"Starting application in directory: {os.getcwd()}")
+logger.info(f"Python path: {sys.path}")
+logger.info(f"Environment variables: {os.environ}")
 
 # Create the FastAPI app
 app = FastAPI()
 
-# Basic health check endpoint that doesn't depend on other services
+# Basic health check endpoint
 @app.get("/health")
 async def health_check():
+    logger.info("Health check endpoint called")
     return {"status": "ok"}
 
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,31 +65,21 @@ try:
 except Exception as e:
     logger.error(f"Failed to mount static files: {e}")
 
+# Root endpoint
 @app.get("/")
 async def read_root():
-    """Serve the index.html file."""
-    try:
-        return FileResponse("frontend/index.html")
-    except Exception as e:
-        logger.error(f"Failed to serve index.html: {e}")
-        return JSONResponse(
-            status_code=200,
-            content={"message": "API is running"}
-        )
+    logger.info("Root endpoint called")
+    return {"message": "API is running"}
 
-@app.exception_handler(404)
-async def custom_404_handler(request, exc):
-    """Handle 404 errors by serving index.html for SPA routing."""
-    try:
-        return FileResponse("frontend/index.html")
-    except Exception as e:
-        logger.error(f"Failed to serve index.html for 404: {e}")
-        return JSONResponse(
-            status_code=404,
-            content={"detail": "Not found"}
-        )
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    logger.error(f"Global error occurred: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)}
+    )
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True) 
+    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="debug") 

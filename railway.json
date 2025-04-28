@@ -7,19 +7,16 @@
     "deploy": {
         "startCommand": "./start.sh",
         "restartPolicyType": "ON_FAILURE",
-        "restartPolicyMaxRetries": 10,
+        "restartPolicyMaxRetries": 3,
         "healthcheckPath": "/health",
-        "healthcheckTimeout": 60,
-        "healthcheckInterval": 15,
-        "numReplicas": 1,
-        "sleepApplication": false,
-        "restartPolicyMaxTimeMinutes": 10
+        "healthcheckTimeout": 30,
+        "healthcheckInterval": 10
     },
     "variables": {
-        "ENVIRONMENT": "production",
-        "PYTHON_VERSION": "3.9.16",
-        "PYTHONPATH": "/app",
         "PYTHONUNBUFFERED": "1",
-        "WEB_CONCURRENCY": "2"
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "ENVIRONMENT": "production",
+        "PYTHONPATH": "/app",
+        "LOG_LEVEL": "debug"
     }
 } 
