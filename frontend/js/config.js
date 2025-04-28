@@ -1,11 +1,9 @@
 const config = {
-    API_URL: process.env.NODE_ENV === 'production'
-        ? 'https://your-production-api.railway.app/api/v1'
-        : 'http://localhost:8000/api/v1',
+    API_URL: '/api/v1',  // Using relative path since API is served from same domain
     API_TIMEOUT: 30000,
     ENVIRONMENT: process.env.NODE_ENV || 'development',
     VERSION: '1.0.0',
-    ENABLE_LOGS: process.env.NODE_ENV !== 'production',
+    ENABLE_LOGS: true,  // Can be configured based on deployment
 };
 
 // API endpoints
