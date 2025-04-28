@@ -9,12 +9,17 @@
         "restartPolicyType": "ON_FAILURE",
         "restartPolicyMaxRetries": 10,
         "healthcheckPath": "/health",
-        "healthcheckTimeout": 300,
-        "healthcheckInterval": 30
+        "healthcheckTimeout": 60,
+        "healthcheckInterval": 15,
+        "numReplicas": 1,
+        "sleepApplication": false,
+        "restartPolicyMaxTimeMinutes": 10
     },
     "variables": {
         "ENVIRONMENT": "production",
         "PYTHON_VERSION": "3.9.16",
-        "PYTHONPATH": "/app"
+        "PYTHONPATH": "/app",
+        "PYTHONUNBUFFERED": "1",
+        "WEB_CONCURRENCY": "2"
     }
 } 
