@@ -3,9 +3,10 @@ import sys
 import time
 import uuid
 import logging
+import psutil
 from pathlib import Path
-from typing import Callable
-from fastapi import FastAPI, HTTPException, Request, Response
+from typing import Callable, Dict, Any
+from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -124,18 +125,60 @@ app.add_middleware(
     secret_key=os.getenv("SECRET_KEY", "your-secret-key-here")
 )
 
-@app.get("/health")
-async def health_check(request: Request):
-    """Health check endpoint."""
-    logger.info("Health check called", 
-                extra={"request_id": request.state.request_id})
+def get_system_health() -> Dict[str, Any]:
+    """Get system health metrics."""
+    process = psutil.Process()
+    memory = process.memory_info()
     return {
-        "status": "ok",
-        "environment": os.getenv("ENVIRONMENT", "development"),
-        "python_version": sys.version,
-        "working_directory": os.getcwd(),
-        "request_id": request.state.request_id
+        "cpu_percent": process.cpu_percent(),
+        "memory_percent": process.memory_percent(),
+        "memory_rss": memory.rss,
+        "memory_vms": memory.vms,
+        "threads": process.num_threads(),
+        "open_files": len(process.open_files()),
     }
+
+@app.get("/health")
+async def health_check(request: Request, response: Response):
+    """Health check endpoint with detailed system information."""
+    try:
+        # Get system health metrics
+        system_health = get_system_health()
+        
+        # Basic application checks
+        checks = {
+            "database": True,  # Add actual DB check if needed
+            "filesystem": os.access(os.getcwd(), os.R_OK | os.W_OK),
+            "memory": system_health["memory_percent"] < 90,  # Alert if memory usage > 90%
+            "cpu": system_health["cpu_percent"] < 90,  # Alert if CPU usage > 90%
+        }
+        
+        # Overall status
+        is_healthy = all(checks.values())
+        status_code = status.HTTP_200_OK if is_healthy else status.HTTP_503_SERVICE_UNAVAILABLE
+        response.status_code = status_code
+        
+        return {
+            "status": "ok" if is_healthy else "unhealthy",
+            "timestamp": time.time(),
+            "environment": os.getenv("ENVIRONMENT", "development"),
+            "version": __version__,  # From backend package
+            "python_version": sys.version,
+            "request_id": request.state.request_id,
+            "checks": checks,
+            "system": system_health,
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}", 
+                    extra={"request_id": request.state.request_id}, 
+                    exc_info=True)
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {
+            "status": "error",
+            "detail": str(e),
+            "timestamp": time.time(),
+            "request_id": request.state.request_id,
+        }
 
 @app.get("/")
 async def root(request: Request):
