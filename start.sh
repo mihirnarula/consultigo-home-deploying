@@ -3,77 +3,72 @@
 # Exit on error
 set -e
 
-echo "Starting application initialization..."
+echo "=== Starting Application Setup ==="
 
-# Create necessary directories if they don't exist
+# Function to log messages
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Create necessary directories
+log "Creating directories..."
 mkdir -p logs
 mkdir -p frontend
 
+# Set environment variables
+export PYTHONUNBUFFERED=1
+export PYTHONDONTWRITEBYTECODE=1
+export PORT=${PORT:-8000}
+export ENVIRONMENT=${ENVIRONMENT:-production}
+
+# Log environment information
+log "Environment Information:"
+log "Python Version: $(python --version 2>&1)"
+log "Pip Version: $(pip --version 2>&1)"
+log "Current Directory: $(pwd)"
+log "Files in current directory:"
+ls -la
+
+# Check Python and pip
+if ! command_exists python; then
+    log "ERROR: Python not found"
+    exit 1
+fi
+
+if ! command_exists pip; then
+    log "ERROR: pip not found"
+    exit 1
+fi
+
 # Activate virtual environment if it exists
 if [ -d "/opt/venv" ]; then
-    echo "Activating virtual environment..."
+    log "Activating virtual environment..."
     source /opt/venv/bin/activate
 fi
 
-# Set default environment variables if not set
-export ENVIRONMENT=${ENVIRONMENT:-production}
-export PORT=${PORT:-8000}
-export PYTHONUNBUFFERED=1
-export PYTHONDONTWRITEBYTECODE=1
-export PYTHONPATH=/app
-
-echo "Environment: $ENVIRONMENT"
-echo "Port: $PORT"
-echo "Python path: $PYTHONPATH"
-
-# Print current directory and files
-echo "Current directory: $(pwd)"
-echo "Files in current directory:"
-ls -la
-
-# Test if Python and pip are working
-echo "Python version:"
-python --version
-echo "Pip version:"
-pip --version
-
-# Verify the test app exists
-if [ ! -f "test_app.py" ]; then
-    echo "ERROR: test_app.py not found"
+# Verify main.py exists
+if [ ! -f "main.py" ]; then
+    log "ERROR: main.py not found"
     exit 1
 fi
 
-# Try to start the test app first
-echo "Starting test app..."
-python -c "
-from fastapi import FastAPI
-app = FastAPI()
-@app.get('/health')
-def health(): return {'status': 'ok'}
-" > test_app.py
+# Log Python path and modules
+log "PYTHONPATH: $PYTHONPATH"
+log "Installed Python packages:"
+pip list
 
-# Start the test app with retries
-MAX_RETRIES=3
-RETRY_COUNT=0
-TEST_PORT=$((PORT + 1))
-
-echo "Starting test app on port $TEST_PORT..."
-uvicorn test_app:app --host 0.0.0.0 --port $TEST_PORT &
-TEST_APP_PID=$!
-
-# Wait for test app to start
-sleep 5
-
-# Check if test app is responding
-if curl -f "http://localhost:$TEST_PORT/health" > /dev/null 2>&1; then
-    echo "Test app is working, proceeding with main app"
-    kill $TEST_APP_PID
-else
-    echo "Test app failed to start"
-    kill $TEST_APP_PID
-    exit 1
-fi
-
-# Now start the main app
-echo "Starting main application..."
-exec uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1 --proxy-headers --forwarded-allow-ips='*' --log-level debug 
+# Start the application
+log "Starting FastAPI application..."
+exec uvicorn main:app \
+    --host 0.0.0.0 \
+    --port $PORT \
+    --workers 1 \
+    --log-level debug \
+    --proxy-headers \
+    --forwarded-allow-ips='*' \
+    --timeout-keep-alive 75 
